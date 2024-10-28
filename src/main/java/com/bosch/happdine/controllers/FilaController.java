@@ -1,5 +1,6 @@
 package com.bosch.happdine.controllers;
 
+import com.bosch.happdine.dtos.FilaRecordDto;
 import com.bosch.happdine.models.FilaModel;
 import com.bosch.happdine.models.RestauranteModel;
 import com.bosch.happdine.repositories.FilaRepository;
@@ -24,19 +25,23 @@ public class FilaController {
 
     // POST - Create a new fila
     @PostMapping
-    public ResponseEntity<FilaModel> createFila(@RequestBody FilaModel filaModel) {
+    public ResponseEntity<FilaModel> createFila(@RequestBody FilaRecordDto filaDto) {
         // Verifica se o restaurante existe
-        if (filaModel.getRestauranteIdModel() != null && filaModel.getRestauranteIdModel().getId_restaurante() != null) {
-            Optional<RestauranteModel> restauranteOptional = restauranteRepository.findById(filaModel.getRestauranteIdModel().getId_restaurante());
-            if (restauranteOptional.isPresent()) {
-                filaModel.setRestauranteIdModel(restauranteOptional.get()); // Define o restaurante existente
-            } else {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Restaurante não encontrado
-            }
-        }
+        Optional<RestauranteModel> restauranteOptional = restauranteRepository.findById(filaDto.restauranteId());
+        if (restauranteOptional.isPresent()) {
+            RestauranteModel restauranteModel = restauranteOptional.get();
 
-        FilaModel savedFila = filaRepository.save(filaModel);
-        return new ResponseEntity<>(savedFila, HttpStatus.CREATED);
+            // Cria a fila e associa ao restaurante
+            FilaModel filaModel = new FilaModel();
+            filaModel.setAtivado(filaDto.isAtivado());
+            filaModel.setLocalizacao(filaDto.localizacao());
+            filaModel.setRestauranteIdModel(restauranteModel);
+
+            FilaModel savedFila = filaRepository.save(filaModel);
+            return new ResponseEntity<>(savedFila, HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Restaurante não encontrado
+        }
     }
 
 

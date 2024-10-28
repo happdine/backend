@@ -21,8 +21,8 @@ public interface MonitoramentoRepository extends JpaRepository<MonitoramentoMode
 
 
 
-
-
+    @Query("SELECT m FROM MonitoramentoModel m WHERE m.dataRegistro = :data ORDER BY m.horarioRegistro DESC, m.id DESC")
+    List<MonitoramentoModel> findAllByDate(@Param("data") LocalDate data);
 
 
     // Query para obter dados de monitoramento de uma semana específica, agrupados por hora

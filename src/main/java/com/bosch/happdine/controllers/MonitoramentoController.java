@@ -16,6 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/monitoramento")
+@CrossOrigin(origins = "http://localhost:5173")
 public class MonitoramentoController {  // Renomear para Controller
     @Autowired
     private MonitoramentoRepository monitoramentoRepository;
@@ -52,26 +53,26 @@ public class MonitoramentoController {  // Renomear para Controller
     }
 
 
-    @GetMapping("/pegar/{localizacao}/{dataInicio}")
-    public ResponseEntity<List<MonitoramentoModel>> pegarPorLocalizacaoEData(@PathVariable("localizacao") String localizacao,
-                                                                             @PathVariable("dataInicio") String dataInicio) {
+    @GetMapping("/pegar/data/{data}")
+    public ResponseEntity<List<MonitoramentoModel>> pegarPorData(@PathVariable("data") String data) {
         try {
-            LocalDate data = LocalDate.parse(dataInicio);
+            LocalDate dataRegistro = LocalDate.parse(data);
 
-            // Busca todos os registros para a localização e data especificadas
-            List<MonitoramentoModel> monitoramentos = monitoramentoRepository.findAllByLocationAndDate(localizacao, data);
+            // Busca todos os registros para a data especificada
+            List<MonitoramentoModel> monitoramentos = monitoramentoRepository.findAllByDate(dataRegistro);
 
             if (monitoramentos.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
             return new ResponseEntity<>(monitoramentos, HttpStatus.OK);
-
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+
 
 
 
